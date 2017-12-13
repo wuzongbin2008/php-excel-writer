@@ -20,19 +20,42 @@
  * According to the zval type written to the file
  */
 void type_writer(zval *value, zend_long row, zend_long columns, excel_resource_t *res)
-{
-    switch (Z_TYPE_P(value)) {
-        case IS_STRING:
-            worksheet_write_string(res->worksheet, row, columns, ZSTR_VAL(zval_get_string(value)), NULL);
-            break;
-        case IS_LONG:
-            worksheet_write_number(res->worksheet, row, columns, zval_get_long(value), NULL);
-            break;
-        case IS_DOUBLE:
-            worksheet_write_number(res->worksheet, row, columns, zval_get_double(value), NULL);
-            break;
-    }
-}
+ {
+     switch (Z_TYPE_P(value)) {
+         case IS_STRING:
+             worksheet_write_string(res->worksheet, row, columns, ZSTR_VAL(zval_get_string(value)), NULL);
+             break;
+         case IS_LONG:
+             worksheet_write_number(res->worksheet, row, columns, zval_get_long(value), NULL);
+             break;
+         case IS_DOUBLE:
+             worksheet_write_number(res->worksheet, row, columns, zval_get_double(value), NULL);
+             break;
+     }
+ }
+
+/*
+ * According to the zval type written to the file, and sets the cell format
+ */
+ void format_writer(zval *value, zend_long row, zend_long columns, zval *cell_format, excel_resource_t *res)
+ {
+     lxw_format *lxw_format = workbook_add_format(res->workbook);
+
+     /* Set some example number formats. */
+     format_set_num_format(lxw_format, ZSTR_VAL(zval_get_string(cell_format)));
+
+     switch (Z_TYPE_P(value)) {
+         case IS_STRING:
+             worksheet_write_string(res->worksheet, row, columns, ZSTR_VAL(zval_get_string(value)), lxw_format);
+             break;
+         case IS_LONG:
+             worksheet_write_number(res->worksheet, row, columns, zval_get_long(value), lxw_format);
+             break;
+         case IS_DOUBLE:
+             worksheet_write_number(res->worksheet, row, columns, zval_get_double(value), lxw_format);
+             break;
+     }
+ }
 
 /*
  * Write the image to the file
